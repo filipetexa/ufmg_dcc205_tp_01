@@ -2,25 +2,34 @@
 CC = gcc
 CFLAGS = -Wall -Iinclude
 
-# Nome do arquivo executável
+# Nome do arquivo executável e caminhos de diretórios
 EXECUTABLE = tp3.out
+EXEC_PATH = bin/$(EXECUTABLE)
+OBJ_PATH = obj
+SRC_PATH = src
+INC_PATH = include
 
-# Lista dos arquivos de código-fonte
-SOURCES = src/main.c src/OrdInd.c
-# Lista dos arquivos objeto correspondentes
-OBJECTS = $(SOURCES:.c=.o)
+# Arquivos de código-fonte e objetos
+SOURCES = $(wildcard $(SRC_PATH)/*.c)
+OBJECTS = $(patsubst $(SRC_PATH)/%.c, $(OBJ_PATH)/%.o, $(SOURCES))
 
 # A primeira regra é a que será executada quando não se especifica uma regra
-all: $(EXECUTABLE)
+all: $(EXEC_PATH)
 
 # Como construir o executável final
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXECUTABLE)
+$(EXEC_PATH): $(OBJECTS)
+	@mkdir -p bin
+	$(CC) $(OBJECTS) -o $@
 
 # Como construir cada arquivo objeto
-%.o: %.c
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c
+	@mkdir -p $(OBJ_PATH)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Regra para limpar os arquivos compilados
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE)
+	rm -rf $(OBJ_PATH) bin
+
+# Regra para executar o programa
+run: $(EXEC_PATH)
+	./$(EXEC_PATH)
