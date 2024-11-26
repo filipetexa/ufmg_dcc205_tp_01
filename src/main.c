@@ -4,7 +4,7 @@
 int main()
 {
     OrdInd *ord = createOrdInd(1000); // Supondo que temos 1000 registros
-    if (!loadFromFile(ord, "tests/cad.r1000.p1000.xcsv"))
+    if (!loadFromFile(ord, "../tests/cad.r1000.p1000.xcsv"))
     {
         printf("Falha ao carregar dados\n");
     }
