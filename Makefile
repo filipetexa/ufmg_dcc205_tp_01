@@ -1,6 +1,6 @@
 # Variáveis para o compilador e as opções de compilação
 CC = gcc
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall -g -Iinclude
 
 # Nome do arquivo executável e caminhos de diretórios
 EXECUTABLE = tp3.out
