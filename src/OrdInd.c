@@ -33,11 +33,6 @@ void destroyOrdInd(OrdInd *ord)
     }
 }
 
-#include "OrdInd.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 int loadFromFile(OrdInd *ord, const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -47,46 +42,64 @@ int loadFromFile(OrdInd *ord, const char *filename)
         return 0;
     }
 
-    char line[1024]; // Buffer para ler cada linha
+    char line[4096];
+    int expectedColumns = 0;
     int index = 0;
 
-    // Pular as linhas de cabeçalho
-    for (int i = 0; i < 5; i++)
+    // Leitura de metadados
+    if (fgets(line, sizeof(line), file))
     {
-        if (!fgets(line, sizeof(line), file))
-        {
-            fprintf(stderr, "Falha ao ler as linhas de cabeçalho\n");
-            fclose(file);
-            return 0;
-        }
+        expectedColumns = atoi(line); // Primeira linha: número de colunas
     }
 
-    // Ler e processar cada registro
-    while (fgets(line, sizeof(line), file) && index < ord->size)
+    // Pula os nomes das colunas e o tipo (s)
+    for (int i = 0; i < expectedColumns; i++)
     {
-        line[strcspn(line, "\n")] = 0; // Remover a nova linha no final
+        fgets(line, sizeof(line), file);
+    }
 
-        // Tokenizar a linha com base em vírgulas
-        char *name = strtok(line, ",");
-        char *id = strtok(NULL, ",");
-        char *address = strtok(NULL, ",");
-        char *payload = strtok(NULL, "");
+    int numRecords;
+    // Leitura do número de registros
+    if (fgets(line, sizeof(line), file))
+    {
+        numRecords = atoi(line);
+    }
+    else
+    {
+        fprintf(stderr, "Erro ao ler o número de registros\n");
+        fclose(file);
+        return 0;
+    }
 
-        if (!name || !id || !address || !payload)
+    // Processamento de registros
+    while (fgets(line, sizeof(line), file) && index < numRecords)
+    {
+        line[strcspn(line, "\n")] = 0;
+        char *token = strtok(line, ",");
+        int colIndex = 0;
+        while (token && colIndex < expectedColumns)
         {
-            fprintf(stderr, "Dados incompletos na linha %d\n", index + 1);
-            continue; // Pula esta iteração se os dados estão incompletos
+            switch (colIndex)
+            {
+            case 0:
+                ord->records[index].name = strdup(token);
+                break;
+            case 1:
+                ord->records[index].id = strdup(token);
+                break;
+            case 2:
+                ord->records[index].address = strdup(token);
+                break;
+            case 3:
+                ord->records[index].payload = strdup(token);
+                break;
+            }
+            token = strtok(NULL, ",");
+            colIndex++;
         }
-
-        // Alocação de memória e cópia dos dados
-        ord->records[index].name = strdup(name);
-        ord->records[index].id = strdup(id);
-        ord->records[index].address = strdup(address);
-        ord->records[index].payload = strdup(payload);
-
         index++;
     }
 
     fclose(file);
-    return 1; // Sucesso
+    return 1;
 }
