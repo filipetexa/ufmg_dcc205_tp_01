@@ -27,5 +27,6 @@ int loadFromFile(OrdInd *ord, const char *filename);
 void sortBy(OrdInd *ord, int *index);
 void printSorted(OrdInd *ord, int *index);
 int loadFromFile(OrdInd *ord, const char *filename);
+void createIndex(OrdInd *ord, int keyType);
 
 #endif

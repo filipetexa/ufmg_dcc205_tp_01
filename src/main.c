@@ -11,10 +11,17 @@ int main()
     else
     {
         printf("Dados carregados com sucesso\n");
-        // Teste adicional: imprimir os primeiros 10 registros para verificar
+
+        // Criando índice para ordenação por nome
+        createIndex(ord, 1); // Assumindo que 1 representa o índice por nome
+
+        // Imprimir os primeiros 10 registros ordenados pelo nome para verificação
+        printf("Primeiros 10 registros ordenados por nome:\n");
         for (int i = 0; i < 10; i++)
         {
-            printf("Nome: %s, ID: %s, Endereço: %s\n", ord->records[i].name, ord->records[i].id, ord->records[i].address);
+            int idx = ord->nameIndex[i];
+            printf("Nome: %s, ID: %s, Endereço: %s, Payload: %s \n", 
+                   ord->records[idx].name, ord->records[idx].id, ord->records[idx].address, ord->records[idx].payload);
         }
     }
     destroyOrdInd(ord);

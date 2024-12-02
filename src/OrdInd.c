@@ -101,3 +101,56 @@ int loadFromFile(OrdInd *ord, const char *filename) {
     fclose(file);
     return 1;
 }
+
+void createIndex(OrdInd *ord, int keyType) {
+    int i, j, min_idx;
+    int *index;
+    char *keyValue;
+
+    // Escolhendo o vetor de índice apropriado
+    switch (keyType) {
+        case 1: // Nome
+            index = ord->nameIndex;
+            break;
+        case 2: // ID
+            index = ord->idIndex;
+            break;
+        case 3: // Endereço
+            index = ord->addressIndex;
+            break;
+        default:
+            printf("Invalid key type\n");
+            return;
+    }
+
+    // Inicialização do índice
+    for (i = 0; i < ord->size; i++) {
+        index[i] = i;
+    }
+
+    // Ordenação simples do índice utilizando o método Selection Sort por simplicidade
+    for (i = 0; i < ord->size - 1; i++) {
+        min_idx = i;
+        for (j = i + 1; j < ord->size; j++) {
+            // Comparação dependente do tipo de chave
+            switch (keyType) {
+                case 1:
+                    keyValue = ord->records[index[j]].name;
+                    break;
+                case 2:
+                    keyValue = ord->records[index[j]].id;
+                    break;
+                case 3:
+                    keyValue = ord->records[index[j]].address;
+                    break;
+            }
+            if (strcmp(ord->records[index[min_idx]].name, keyValue) > 0) {
+                min_idx = j;
+            }
+        }
+        // Trocando os índices
+        int temp = index[min_idx];
+        index[min_idx] = index[i];
+        index[i] = temp;
+    }
+}
