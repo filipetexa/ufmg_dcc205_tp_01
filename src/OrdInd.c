@@ -33,11 +33,9 @@ void destroyOrdInd(OrdInd *ord)
     }
 }
 
-int loadFromFile(OrdInd *ord, const char *filename)
-{
+int loadFromFile(OrdInd *ord, const char *filename) {
     FILE *file = fopen(filename, "r");
-    if (!file)
-    {
+    if (!file) {
         perror("Erro ao abrir arquivo");
         return 0;
     }
