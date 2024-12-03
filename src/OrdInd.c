@@ -103,9 +103,10 @@ int loadFromFile(OrdInd *ord, const char *filename) {
 }
 
 void createIndex(OrdInd *ord, int keyType) {
-    int i, j, min_idx;
+    int i;
+    // int j, min_idx;
     int *index;
-    char *keyValue;
+    // char *keyValue;
 
     // Escolhendo o vetor de índice apropriado
     switch (keyType) {
@@ -128,6 +129,7 @@ void createIndex(OrdInd *ord, int keyType) {
         index[i] = i;
     }
 
+/*
     // Ordenação simples do índice utilizando o método Selection Sort por simplicidade
     for (i = 0; i < ord->size - 1; i++) {
         min_idx = i;
@@ -148,9 +150,12 @@ void createIndex(OrdInd *ord, int keyType) {
                 min_idx = j;
             }
         }
+
         // Trocando os índices
         int temp = index[min_idx];
         index[min_idx] = index[i];
         index[i] = temp;
     }
+*/
+
 }
