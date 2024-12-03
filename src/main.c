@@ -1,72 +1,95 @@
 #include "../include/OrdInd.h"
 #include "../include/sort_algorithms.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main()
+int main(int argc, char *argv[])
 {
-    OrdInd *ord = createOrdInd(1000); // Supondo que temos 1000 registros
-    if (!loadFromFile(ord, "../tests/cad.r1000.p1000.xcsv"))
+    if (argc != 2)
     {
-        printf("Falha ao carregar dados\n");
+        fprintf(stderr, "Usage: %s <filename.xcsv>\n", argv[0]);
+        return EXIT_FAILURE;
     }
-    else
+
+    FILE *file = fopen(argv[1], "r");
+    if (!file)
     {
-        printf("Dados carregados com sucesso\n");
-
-        // Criando índice para ordenação por nome
-        createIndex(ord, 1); // Assumindo que 1 representa o índice por nome
-        // Ordena o indice usando quick sort
-        //quickSort(ord, 0, ord->size - 1, 1);
-        //bubbleSort(ord, 0, ord->size - 1, 1);
-        selectionSort(ord, 0, ord->size - 1, 1);
-        // Imprimir os primeiros 10 registros ordenados pelo nome para verificação
-        printf("Primeiros 10 registros ordenados por nome:\n");
-        for (int i = 0; i < 10; i++)
-        {
-            int idx = ord->nameIndex[i];
-            printf("Nome: %s, ID: %s, Endereço: %s \n", 
-                   ord->records[idx].name, ord->records[idx].id, ord->records[idx].address);
-        }
-
-        
-        printf("===========================================================================\n");
-
-        // Criando índice para ordenação por nome
-        createIndex(ord, 2); // Assumindo que 1 representa o índice por id
-        // Ordena o indice usando quick sort
-        //quickSort(ord, 0, ord->size - 1, 2);
-        //bubbleSort(ord, 0, ord->size - 1, 2);
-        selectionSort(ord, 0, ord->size - 1, 2);
-        // Imprimir os primeiros 10 registros ordenados pelo nome para verificação
-        printf("Primeiros 10 registros ordenados por ID:\n");
-        for (int i = 0; i < 10; i++)
-        {
-            int idx = ord->idIndex[i];
-            printf("Nome: %s, ID: %s, Endereço: %s \n", 
-                   ord->records[idx].name, ord->records[idx].id, ord->records[idx].address);
-        }
-
-        
-        printf("===========================================================================\n");
-
-        // Criando índice para ordenação por nome
-        createIndex(ord, 3); // Assumindo que 1 representa o índice por Endereço
-        // Ordena o indice usando quick sort
-        //quickSort(ord, 0, ord->size - 1, 3);
-        //bubbleSort(ord, 0, ord->size - 1, 3);
-        selectionSort(ord, 0, ord->size - 1, 3);
-        // Imprimir os primeiros 10 registros ordenados pelo nome para verificação
-        printf("Primeiros 10 registros ordenados por Endereço:\n");
-        for (int i = 0; i < 10; i++)
-        {
-            int idx = ord->addressIndex[i];
-            printf("Nome: %s, ID: %s, Endereço: %s \n", 
-                   ord->records[idx].name, ord->records[idx].id, ord->records[idx].address);
-        }
-
-
-
+        perror("Erro ao abrir arquivo");
+        return EXIT_FAILURE;
     }
+
+    char line[4096];
+    int expectedColumns = 0;
+    int numRecords = 0;
+    char header[4096] = "";
+
+    // Leitura de metadados
+    if (fgets(line, sizeof(line), file))
+    {
+        expectedColumns = atoi(line); // Primeira linha: número de colunas
+    }
+
+    // Leitura e armazenamento dos nomes e tipos das colunas
+    for (int i = 0; i < expectedColumns; i++)
+    {
+        fgets(line, sizeof(line), file);
+        strcat(header, line);
+    }
+
+    // Leitura do número de registros
+    if (fgets(line, sizeof(line), file))
+    {
+        numRecords = atoi(line);
+    }
+
+    // Criação e carregamento dos dados
+    OrdInd *ord = createOrdInd(numRecords);
+    if (!loadFromFile(ord, argv[1]))
+    {
+        fprintf(stderr, "Falha ao carregar dados de %s\n", argv[1]);
+        fclose(file);
+        destroyOrdInd(ord);
+        return EXIT_FAILURE;
+    }
+
+    fclose(file);
+
+    // Aplicação dos algoritmos de ordenação
+    int keyTypes[3] = {1, 2, 3}; // Representando nome, ID, endereço
+    void (*sortAlgorithms[3])(OrdInd *, int, int, int) = {quickSort, bubbleSort, selectionSort};
+
+    for (int alg = 0; alg < 3; alg++)
+    {
+        for (int key = 0; key < 3; key++)
+        {
+            createIndex(ord, keyTypes[key]); // Cria os indices para essa ordenação
+            sortAlgorithms[alg](ord, 0, ord->size - 1, keyTypes[key]);
+
+            // Imprimir todos os registros após a ordenação
+            printf("%d\n%s%d\n", expectedColumns, header, ord->size);
+
+            for (int i = 0; i < ord->size; i++)
+            {
+
+                int idx;
+                if (key == 0)
+                {
+                    idx = ord->nameIndex[i];
+                }
+                else if (key == 1)
+                {
+                    idx = ord->idIndex[i];
+                }
+                else
+                {
+                    idx = ord->addressIndex[i];
+                }
+                printf("%s,%s,%s,%s\n", ord->records[idx].name, ord->records[idx].id, ord->records[idx].address, ord->records[idx].payload);
+            }
+        }
+    }
+
     destroyOrdInd(ord);
     return 0;
 }
