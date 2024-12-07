@@ -13,6 +13,7 @@ typedef struct memlog{
     int ativo;
 } memlog_tipo;
 extern memlog_tipo ml;
+
 // constantes definindo os estados de registro
 #define MLATIVO 1
 #define MLINATIVO 0

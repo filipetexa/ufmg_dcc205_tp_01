@@ -1,9 +1,19 @@
-#include "memlog.h"
+#include "../include/memlog.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <linux/time.h>
+#include <assert.h>
+
+memlog_tipo ml;
+
+
+void erroAssert(int condition, char *message) {
+    if (!condition) {
+        fprintf(stderr, "%s\n", message);
+        exit(EXIT_FAILURE);
+    }
+}
 
 void clkDifMemLog(struct timespec t1, struct timespec t2,
                   struct timespec *res)

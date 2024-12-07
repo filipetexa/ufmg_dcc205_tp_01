@@ -1,5 +1,6 @@
 #include "../include/OrdInd.h"
 #include "../include/sort_algorithms.h"
+#include "../include/memlog.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
