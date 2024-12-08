@@ -20,6 +20,16 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    // O caminho para o arquivo de log dentro da pasta tests/output
+    char *nomeArquivo = "../tests/output/OrdInd.out";
+    if (iniciaMemLog(nomeArquivo) != 0) {
+        fprintf(stderr, "Falha ao iniciar memlog\n");
+        return EXIT_FAILURE;
+    }
+
+    ativaMemLog();
+
+
     char line[4096];
     int expectedColumns = 0;
     int numRecords = 0;
@@ -60,10 +70,13 @@ int main(int argc, char *argv[])
     int keyTypes[3] = {1, 2, 3}; // Representando nome, ID, endereço
     void (*sortAlgorithms[3])(OrdInd *, int, int, int) = {quickSort, bubbleSort, selectionSort};
 
+    int memoryLogFase = 0;
+
     for (int alg = 0; alg < 3; alg++)
     {
         for (int key = 0; key < 3; key++)
         {
+            defineFaseMemLog(memoryLogFase);
             createIndex(ord, keyTypes[key]); // Cria os indices para essa ordenação
             sortAlgorithms[alg](ord, 0, ord->size - 1, keyTypes[key]);
 
@@ -88,9 +101,11 @@ int main(int argc, char *argv[])
                 }
                 printf("%s,%s,%s,%s\n", ord->records[idx].name, ord->records[idx].id, ord->records[idx].address, ord->records[idx].payload);
             }
+            memoryLogFase++; // Muda fase do registro de memoria
         }
     }
 
     destroyOrdInd(ord);
+    finalizaMemLog();
     return 0;
 }
